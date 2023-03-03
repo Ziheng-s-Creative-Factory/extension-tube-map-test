@@ -1,0 +1,14 @@
+{
+  "extension": "extension-tube-map-test",
+  "mode": "compile",
+  "output": "./dist",
+  "compile": {
+    "entry": "./src/index.js",
+    "qext": "./src/index.qext",
+    "static": "./static"
+  },
+  "deploy": "desktop",
+  "desktopConfig": {
+    "destination": "D:\\Data\\Qlik\\Sense\\Extensions"
+  }
+}

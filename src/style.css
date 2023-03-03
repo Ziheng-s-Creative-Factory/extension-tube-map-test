@@ -1,0 +1,14 @@
+#container {
+    /* border: 1px solid black; */
+    position: relative;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.point-box {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    box-sizing: border-box;
+    border: 1px solid green;
+}
