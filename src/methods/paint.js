@@ -7,7 +7,7 @@ export default function (qlik, jtopo) {
   const {
     Stage,
     Layer,
-    CircleNode, TextNode,
+    CircleNode, TextNode, Node, PolygonNode,
     Link,
   } = jtopo;
   return function ($element, layout) {
@@ -62,8 +62,8 @@ export default function (qlik, jtopo) {
       const stationsSet = new Set();
       data.forEach((d) => {
         if (!stationsSet.has(d.stationId)) {
-          let x = Decimal(width).div(maxLatitudeDiff).mul(Decimal(d.latitude)).mul(Decimal(3));
-          let y = Decimal(height).div(maxLongitudeDiff).mul(Decimal(d.longitude)).mul(Decimal(3));
+          let x = Decimal(width).div(maxLatitudeDiff).mul(Decimal(d.latitude)).mul(Decimal(8));
+          let y = Decimal(height).div(maxLongitudeDiff).mul(Decimal(d.longitude)).mul(Decimal(8));
 
           // // let x = 0, y = 0;
           // if (stations.length > 0) {
@@ -137,16 +137,18 @@ export default function (qlik, jtopo) {
     
         //  圆形站点
         stations.forEach(function (station) {
-          let node = new CircleNode(station.name, station.x, station.y, 12);
+          let node = new Node(station.name, station.x, station.y, 130, 50);
           node.draggable = false;
           node.mouseEnabled = false;
+          node.textOffsetY = -30;
           node.userData = {
             stationId: station.id,
           }
           node.css({
             background: 'white',
             borderWidth: 2,
-            borderColor: 'grey'
+            borderColor: 'grey',
+            borderRadius: 10,
           });
           stationMap[station.id] = node;
           childs.push(node);
@@ -154,7 +156,7 @@ export default function (qlik, jtopo) {
     
         // 线路
         lines.forEach(drawLine);
-
+        console.log('childs', childs)
         layer.addChilds(childs);
 
         stage.show();
@@ -169,11 +171,12 @@ export default function (qlik, jtopo) {
             // 起始站和结束站
             if (index === 0 || index === (line.stations.length - 1)) {
               const startOrEndStation = childs.find(sc => sc.userData && sc.userData.stationId === id);
-              startOrEndStation.setRadius(20);
+              // startOrEndStation.setRadius(20);
               startOrEndStation.css({
                 background: line.color,
-                borderWidth: 3,
-                borderColor: 'white'
+                borderWidth: 2,
+                borderColor: 'white',
+                color: 'white',
               })
             }
     
@@ -188,7 +191,7 @@ export default function (qlik, jtopo) {
             link.mouseEnabled = false;
             link.showSelected = false;
             link.css({
-              borderWidth: 10,
+              borderWidth: 30,
               borderColor: line.color,
             });
 
