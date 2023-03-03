@@ -8,7 +8,7 @@ export default function (qlik, jtopo) {
     Stage,
     Layer,
     CircleNode, TextNode,
-    Link
+    Link,
   } = jtopo;
   return function ($element, layout) {
     $("#container").empty();
@@ -62,21 +62,33 @@ export default function (qlik, jtopo) {
       const stationsSet = new Set();
       data.forEach((d) => {
         if (!stationsSet.has(d.stationId)) {
-          const x = Decimal(width).div(maxLatitudeDiff).mul(Decimal(d.latitude)).mul(Decimal(5)).toNumber();
-          const y = Decimal(height).div(maxLongitudeDiff).mul(Decimal(d.longitude)).mul(Decimal(5)).toNumber();
+          let x = Decimal(width).div(maxLatitudeDiff).mul(Decimal(d.latitude)).mul(Decimal(3));
+          let y = Decimal(height).div(maxLongitudeDiff).mul(Decimal(d.longitude)).mul(Decimal(3));
 
-          // let x = 0, y = 0;
+          // // let x = 0, y = 0;
           // if (stations.length > 0) {
           //   const preStation = stations[stations.length - 1];
           //   // 如果对角线小于distance，那么长和宽按比例变化
-          //   const latitudeDiff = Decimal.abs(Decimal(preStation.userData.latitude).sub(Decimal(d.latitude)));
-          //   const longitudeDiff = Decimal.abs(Decimal(preStation.userData.longitude).sub(Decimal(d.longitude)));
-          //   const straightLineDistance = Decimal.sqrt(Decimal.pow(latitudeDiff, 2).add(Decimal.pow(longitudeDiff, 2)));
-
-          //   x = Decimal(distance).div(straightLineDistance).mul(Decimal(d.latitude)).toNumber();
-          //   y = Decimal(distance).div(straightLineDistance).mul(Decimal(d.longitude)).toNumber();
+          //   const preNodeX = Decimal(preStation.x);
+          //   const preNodeY = Decimal(preStation.y);
+          //   const xDiff = preNodeX.sub(x);
+          //   const yDiff = preNodeY.sub(y);
+          //   const straightLineDistance = Decimal.sqrt(Decimal.pow(Decimal.abs(xDiff), 2).add(Decimal.pow(Decimal.abs(yDiff), 2)));
+          //   // const scale = Decimal(distance).div(straightLineDistance);
+          //   // if (xDiff.toNumber() < 0) {
+          //   //   x = x.add(scale.sub(Decimal(1)).mul(Decimal.abs(xDiff)));
+          //   // } else if (xDiff.toNumber > 0) {
+          //   //   x = x.sub(scale.sub(Decimal(1)).mul(Decimal.abs(xDiff)));
+          //   // }
+          //   // if (yDiff.toNumber() < 0) {
+          //   //   y = y.add(scale.sub(Decimal(1)).mul(Decimal.abs(yDiff)));
+          //   // } else if (xDiff.toNumber > 0) {
+          //   //   y = y.sub(scale.sub(Decimal(1)).mul(Decimal.abs(yDiff)));
+          //   // }
           // }
 
+          x = x.toNumber();
+          y = y.toNumber();
           const station = {
             id: d.stationId,
             name: d.stationName,
@@ -100,12 +112,11 @@ export default function (qlik, jtopo) {
       // all lines
       const lines = [];
       const lineSet = new Set();
-      const colors = ["#f9d300", "#e52035", "#4d2991", "#8d54a7"]
       data.forEach((d) => {
         if (!lineSet.has(d.line)) {
           const line = {
             name: d.line,
-            color: colors[lines.length] || "#4d2991",
+            color: jtopo.randomColor(),
             stations: data.filter(dc => dc.line === d.line).map(dc => dc.stationId),
           };
           
