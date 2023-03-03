@@ -175,6 +175,7 @@ export default function (qlik, jtopo) {
             let link = new Link(null, preNode, nextNode);
             
             link.mouseEnabled = false;
+            link.showSelected = false;
             link.css({
               borderWidth: 10,
               borderColor: line.color,
