@@ -137,10 +137,11 @@ export default function (qlik, jtopo) {
     
         //  圆形站点
         stations.forEach(function (station) {
-          let node = new Node(station.name, station.x, station.y, 130, 50);
+          let node = new CircleNode(station.name, station.x, station.y, 50);
           node.draggable = false;
           node.mouseEnabled = false;
-          node.textOffsetY = -30;
+          node.textOffsetX = 50;
+          node.textOffsetY = 10;
           node.userData = {
             stationId: station.id,
           }
@@ -148,7 +149,7 @@ export default function (qlik, jtopo) {
             background: 'white',
             borderWidth: 2,
             borderColor: 'grey',
-            borderRadius: 10,
+            font: 'bold 20px arial',
           });
           stationMap[station.id] = node;
           childs.push(node);
@@ -175,8 +176,7 @@ export default function (qlik, jtopo) {
               startOrEndStation.css({
                 background: line.color,
                 borderWidth: 2,
-                borderColor: 'white',
-                color: 'white',
+                borderColor: 'white'
               })
             }
     
