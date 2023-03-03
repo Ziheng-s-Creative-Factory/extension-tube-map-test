@@ -24,6 +24,8 @@ export default function (qlik, jtopo) {
       const width = $("#container").width();
       const height = $("#container").height();
 
+      // 交叉站点
+      const crossStations = new Set();
       const distance = 15;
 
       let stage = new Stage("container");
@@ -107,6 +109,8 @@ export default function (qlik, jtopo) {
           stations.push(station);
           labels.push(label);
           stationsSet.add(d.stationId);
+        } else {
+          crossStations.add(d.stationId);
         }
       });
       // all lines
@@ -157,7 +161,6 @@ export default function (qlik, jtopo) {
     
         // 线路
         lines.forEach(drawLine);
-        console.log('childs', childs)
         layer.addChilds(childs);
 
         stage.show();
@@ -168,7 +171,14 @@ export default function (qlik, jtopo) {
           let preNode = null;
           line.stations.forEach(function (idOrObj, index) {
             let id = idOrObj.id ? idOrObj.id : idOrObj;
-
+            // 交叉站点
+            if (crossStations.has(id)) {
+              const startOrEndStation = childs.find(sc => sc.userData && sc.userData.stationId === id);
+              // startOrEndStation.setRadius(20);
+              startOrEndStation.css({
+                borderWidth: 10,
+              })
+            }
             // 起始站和结束站
             if (index === 0 || index === (line.stations.length - 1)) {
               const startOrEndStation = childs.find(sc => sc.userData && sc.userData.stationId === id);
