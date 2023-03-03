@@ -55,8 +55,6 @@ export default function (qlik, jtopo) {
         }
       })
 
-      console.log('data', data)
-
       // all stations
       // all labels
       const stations = [];
@@ -64,20 +62,20 @@ export default function (qlik, jtopo) {
       const stationsSet = new Set();
       data.forEach((d) => {
         if (!stationsSet.has(d.stationId)) {
-          // const x = Decimal(width).div(maxLatitudeDiff).mul(Decimal(d.latitude)).mul(Decimal(5)).toNumber();
-          // const y = Decimal(height).div(maxLongitudeDiff).mul(Decimal(d.longitude)).mul(Decimal(5)).toNumber();
+          const x = Decimal(width).div(maxLatitudeDiff).mul(Decimal(d.latitude)).mul(Decimal(5)).toNumber();
+          const y = Decimal(height).div(maxLongitudeDiff).mul(Decimal(d.longitude)).mul(Decimal(5)).toNumber();
 
-          let x = 0, y = 0;
-          if (stations.length > 0) {
-            const preStation = stations[stations.length - 1];
-            // 如果对角线小于distance，那么长和宽按比例变化
-            const latitudeDiff = Decimal.abs(Decimal(preStation.userData.latitude).sub(Decimal(d.latitude)));
-            const longitudeDiff = Decimal.abs(Decimal(preStation.userData.longitude).sub(Decimal(d.longitude)));
-            const straightLineDistance = Decimal.sqrt(Decimal.pow(latitudeDiff, 2).add(Decimal.pow(longitudeDiff, 2)));
+          // let x = 0, y = 0;
+          // if (stations.length > 0) {
+          //   const preStation = stations[stations.length - 1];
+          //   // 如果对角线小于distance，那么长和宽按比例变化
+          //   const latitudeDiff = Decimal.abs(Decimal(preStation.userData.latitude).sub(Decimal(d.latitude)));
+          //   const longitudeDiff = Decimal.abs(Decimal(preStation.userData.longitude).sub(Decimal(d.longitude)));
+          //   const straightLineDistance = Decimal.sqrt(Decimal.pow(latitudeDiff, 2).add(Decimal.pow(longitudeDiff, 2)));
 
-            x = Decimal(distance).div(straightLineDistance).mul(Decimal(d.latitude)).toNumber();
-            y = Decimal(distance).div(straightLineDistance).mul(Decimal(d.longitude)).toNumber();
-          }
+          //   x = Decimal(distance).div(straightLineDistance).mul(Decimal(d.latitude)).toNumber();
+          //   y = Decimal(distance).div(straightLineDistance).mul(Decimal(d.longitude)).toNumber();
+          // }
 
           const station = {
             id: d.stationId,
@@ -110,12 +108,6 @@ export default function (qlik, jtopo) {
             color: colors[lines.length] || "#4d2991",
             stations: data.filter(dc => dc.line === d.line).map(dc => dc.stationId),
           };
-
-          line.stations.forEach(id, i => {
-            if (i > 0) {
-              const sInd = stations.findIndex(s => s.id === id);
-            }
-          })
           
           lines.push(line);
           lineSet.add(d.line);
@@ -126,16 +118,20 @@ export default function (qlik, jtopo) {
         const stationMap = {};
         const childs = [];
         // 站点标签
-        labels.forEach(function (label) {
-          let node = new TextNode(label.text, label.x, label.y);
-          node.mouseEnabled = false;
-          childs.push(node);
-        });
+        // labels.forEach(function (label) {
+        //   let node = new TextNode(label.text, label.x, label.y);
+        //   node.mouseEnabled = false;
+        //   childs.push(node);
+        // });
     
         //  圆形站点
         stations.forEach(function (station) {
-          let node = new CircleNode(null, station.x, station.y, 12);
+          let node = new CircleNode(station.name, station.x, station.y, 12);
           node.draggable = false;
+          node.mouseEnabled = false;
+          node.userData = {
+            stationId: station.id,
+          }
           node.css({
             background: 'white',
             borderWidth: 2,
@@ -149,14 +145,26 @@ export default function (qlik, jtopo) {
         lines.forEach(drawLine);
 
         layer.addChilds(childs);
+
         stage.show();
         // stage.showOverview();
         stage.zoomFullStage();
         
         function drawLine(line) {
           let preNode = null;
-          line.stations.forEach(function (idOrObj) {
+          line.stations.forEach(function (idOrObj, index) {
             let id = idOrObj.id ? idOrObj.id : idOrObj;
+
+            // 起始站和结束站
+            if (index === 0 || index === (line.stations.length - 1)) {
+              const startOrEndStation = childs.find(sc => sc.userData && sc.userData.stationId === id);
+              startOrEndStation.setRadius(20);
+              startOrEndStation.css({
+                background: line.color,
+                borderWidth: 3,
+                borderColor: 'white'
+              })
+            }
     
             let nextNode = stationMap[id];
             if (preNode == null) {
@@ -165,7 +173,8 @@ export default function (qlik, jtopo) {
             }
     
             let link = new Link(null, preNode, nextNode);
-    
+            
+            link.mouseEnabled = false;
             link.css({
               borderWidth: 10,
               borderColor: line.color,
